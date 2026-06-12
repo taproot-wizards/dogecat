@@ -110,7 +110,7 @@
   <h1>DOGE<span class="cat">CAT</span> 🐕🐈</h1>
   <div class="subtitle">Bringing <strong>BIP-347 (OP_CAT)</strong>, <strong>Taproot</strong>, and <strong>BIP-360 (P2MR)</strong> to Dogecoin:
   an evidence-based comparison of engineering approaches, with a recommendation.</div>
-  <div class="meta">Prepared for Udi · June 12, 2026 · Empirical data measured directly from the dogecoin/dogecoin and bitcoin/bitcoin git histories · All claims sourced (§9)</div>
+  <div class="meta">Prepared for Udi · June 12, 2026 · rev 2 (adds §5-E stretch goal, compressed timeline) · Empirical data measured directly from the dogecoin/dogecoin and bitcoin/bitcoin git histories · All claims sourced (§9)</div>
 </header>
 
 <div class="verdict">
@@ -303,6 +303,29 @@
   </div>
 </div>
 
+<div class="approach">
+  <div class="a-head"><span class="a-letter" style="background:var(--green)">E</span><h3>Stretch Goal: a From-Scratch "Next-Gen" Dogecoin Node</h3><span class="chip red">consensus from scratch: NO</span> <span class="chip green">everything-else from scratch, around the dogecat kernel: YES</span></div>
+  <div class="a-tag">Added after review (June 12, rev 2). A second, modern node implementation ("all the bells and whistles devs would have wanted"), proven by the same differential harness — possibly proposed alongside the Core-31-based dogecat.</div>
+  <p><strong>The evidence against from-scratch <em>consensus</em> is brutal.</strong> btcd — the most mature Bitcoin reimplementation, a decade of maintenance, Core-PR tracking, test vectors, fuzzing — shipped CVE-2024-38365 (a <code>FindAndDelete()</code> mismatch any user could exploit to split the chain) which hid for <strong>~9 years</strong>, and stalled live on mainnet twice in October 2022. rust-bitcoin's own README forbids consensus use of itself. Differential testing finds divergences but can never prove their absence — and there is no formal spec to verify against; the code is the spec. Worse for us specifically: <strong>no production alternative full node has ever existed for any AuxPoW chain</strong> — Namecoin's and Viacoin's btcd forks both died of upstream drift — and nobody has ever shipped an alternative Dogecoin full node at all (libdogecoin is a wallet library + SPV tool; even the Foundation's Dogebox runs stock Dogecoin Core). Scrypt+AuxPoW header validation, the most divergence-prone part, is exactly the part with no battle-tested code to borrow. And strategically: our entire activation pitch is "zero novel consensus code" — shipping a from-scratch consensus engine next to it hands critics the Litecoin-MWEB stick we built Approach A to avoid.</p>
+  <p><strong>But the dream survives — through the kernel.</strong> Bitcoin Core merged the <code>libbitcoinkernel</code> C API into master in November 2025 (it is already sitting in dogecat's tree), exposing Core's exact consensus/validation engine as a linkable library. Floresta — the modern Rust node — ripped out its own script validation in April 2026 and now wraps the kernel instead of reimplementing it; TheCharlatan's <code>kernel-node</code> is a Rust node with Core's engine inside, syncing signet today. Approach A makes the Dogecoin version of this fall out nearly free: keep the essence code kernel-side, and dogecat yields <strong>"dogekernel" — Dogecoin consensus as an embeddable library, a first for any AuxPoW chain</strong>. The next-gen node then reimplements everything that is allowed to be creative (Rust, modern async P2P, built-in explorer/Electrum/indexes, slick APIs, payment-oriented UX) around a consensus core that is dogecat's <em>by construction, not by testing</em>.</p>
+  <div class="flow">
+    <span class="box hl">dogecat (Core 31.99 + essence)</span><span class="arr">⇣ extracts</span><span class="box hl">dogekernel (consensus lib)</span><span class="arr">⇠ embeds</span><span class="box">next-gen node: from-scratch P2P ⋅ mempool ⋅ wallet ⋅ explorer ⋅ APIs</span>
+  </div>
+  <div class="pc">
+    <div class="pros"><h4>Why it's worth doing (as phase 2)</h4><ul>
+      <li>"Two node implementations, one consensus engine, zero divergence by construction" — a better multi-client story than Ethereum's, sized for a chain with two reviewers.</li>
+      <li>Massive dev-appeal / meme surface; gives the campaign a second act after signet launch.</li>
+      <li>Parallelizable with token spend; never blocks or endangers the activation path.</li>
+      <li>dogekernel itself is a gift to the ecosystem (exchanges, indexers, wallets embed real validation — Floresta-style consumers become possible on Dogecoin).</li>
+    </ul></div>
+    <div class="cons"><h4>Caveats</h4><ul>
+      <li>Kernel API is experimental/unversioned upstream (every consumer compiles from source today); expect breaking-change churn until ~v32+.</li>
+      <li>Kernel covers consensus/chainstate only — mempool <em>policy</em> is reimplemented, so relay-level (not chain-level) divergence needs its own differential tests.</li>
+      <li>The <em>activation proposal</em> must rest on dogecat alone; the next-gen node is ecosystem candy, never the consensus vehicle. Announce staged, build parallel.</li>
+    </ul></div>
+  </div>
+</div>
+
 <h3>Comparison Matrix</h3>
 <table>
   <tr><th>Criterion</th><th>A · Essence-port (dogecat)</th><th>B · Backport features</th><th>C · Finish 1.21-dev</th><th>D · True rebase</th></tr>
@@ -322,23 +345,23 @@
 
 <div class="phases">
   <div class="phase"><div class="p-num">0</div><div class="p-body">
-    <div class="p-title"><span>Essence enumeration &amp; spec</span><span class="p-dur">~2–4 wks · mostly done in this session</span></div>
+    <div class="p-title"><span>Essence enumeration &amp; spec</span><span class="p-dur">days · mostly done already</span></div>
     <div class="p-desc">Formalize the catalog of Dogecoin-isms from the 1.14.9 diff + 1.21-dev curated diff into a reviewable spec document ("What makes Dogecoin Dogecoin"), each item tagged consensus / policy / RPC / cosmetic. This doc is also our first community artifact — Dogecoin devs can correct it, which starts the relationship as collaboration.</div>
   </div></div>
   <div class="phase"><div class="p-num">1</div><div class="p-body">
-    <div class="p-title"><span>Port the essence to dogecat</span><span class="p-dur">~1–3 mo with AI leverage</span></div>
+    <div class="p-title"><span>Port the essence to dogecat</span><span class="p-dur">~1–2 wks authoring</span></div>
     <div class="p-desc">AuxPoW (+pureheader), Scrypt PoW, Digishield + era-params, subsidy schedule, chainparams (incl. genesis, bech32 HRP decision), fee policy, AuxPoW mining RPCs. Target: node syncs Dogecoin mainnet from genesis to tip. SegWit/Taproot params present but NEVER_ACTIVE — exactly as 1.21-dev did.</div>
   </div></div>
   <div class="phase"><div class="p-num">2</div><div class="p-body">
-    <div class="p-title"><span>Differential consensus harness — the centerpiece</span><span class="p-dur">~2–4 mo, overlaps P1</span></div>
-    <div class="p-desc">This is what makes the whole thing credible. (a) Full-IBD lockstep sync vs Dogecoin Core 1.14.9 comparing every block/UTXO-set hash; (b) differential fuzzing of script/tx/block acceptance between the two implementations; (c) replay of all historical mainnet+testnet edge cases; (d) shadow-node soak on live mainnet. Publish results continuously. (Reused later by Dogecoin Core itself — this harness is our gift that doubles as our proof.)</div>
+    <div class="p-title"><span>Differential consensus harness + the visual proof layer — the centerpiece</span><span class="p-dur">v1 in ~2–4 wks · soak runs forever after</span></div>
+    <div class="p-desc">This is what makes the whole thing credible, and it is compute-bound, not authoring-bound: each full differential IBD vs Dogecoin Core 1.14.9 (~6M blocks) takes on the order of a day, and the loop is sync → diverge at some 2014-era block → fix → resume-from-snapshot. (a) Lockstep IBD comparing every block/UTXO-set hash; (b) differential fuzzing of script/tx/block acceptance (bitcoinfuzz-style — that project has found 70+ cross-implementation bugs on Bitcoin); (c) historical edge-case replay; (d) shadow-node soak on live mainnet. <strong>Front it with public instruments that double as the campaign:</strong> a live parity dashboard (both nodes syncing side-by-side, every block hash compared — "5,9xx,xxx / 5,9xx,xxx identical · 100.000%", screenshot-able by normies) and an annotated diff explorer (every line dogecat changes vs Bitcoin Core, tagged to its essence item with a plain-English explanation and a side-by-side link to the 1.14.9 code it reimplements — the entire novel surface walkable in an afternoon). The meme layer sits on real instruments.</div>
   </div></div>
   <div class="phase"><div class="p-num">3</div><div class="p-body">
-    <div class="p-title"><span>Doge-signet with the bundle live</span><span class="p-dur">~1–2 mo</span></div>
+    <div class="p-title"><span>Doge-signet with the bundle live</span><span class="p-dur">~1 wk (parallel to P2)</span></div>
     <div class="p-desc">Public signet: CSV + SegWit (decide discount question, §7) + Taproot active from genesis; BIP-347 from inquisition's patch; P2MR tracked as it stabilizes. Faucet, explorer, demo wallets. First public moment: "OP_CAT is live on a Dogecoin testnet — much concatenation, wow."</div>
   </div></div>
   <div class="phase"><div class="p-num">4</div><div class="p-body">
-    <div class="p-title"><span>Killer demo: quantum-resistant DOGE</span><span class="p-dur">~1–2 mo</span></div>
+    <div class="p-title"><span>Killer demo: quantum-resistant DOGE</span><span class="p-dur">~2–3 wks</span></div>
     <div class="p-desc">Working Winternitz-via-CAT signatures inside P2MR outputs on doge-signet (port conduition's inquisition prototype). The headline artifact for the meme campaign — and the bridge to the Foundation's existing RE-EN quantum interest. Precision matters: CAT-PQ requires P2MR (§3 caveat); we say so loudly before critics do.</div>
   </div></div>
   <div class="phase"><div class="p-num">5</div><div class="p-body">
@@ -347,7 +370,7 @@
   </div></div>
 </div>
 
-<p><strong>Honest overall timeline:</strong> a credible, equivalence-proven, bundle-capable dogecat node + signet within <strong>6–9 months</strong>; mainnet activation is gated by Dogecoin's social process — <strong>12–24+ months</strong>, and not in our control. The engineering is now the cheap part; that's what changed since you last priced this.</p>
+<p><strong>Honest overall timeline — three different clocks:</strong> <em>Authoring time</em> (where AI changes everything): the port, the signet, the dashboards — days to ~2 weeks each, heavily parallelizable. <em>Compute wall-clock</em> (where AI changes little): differential IBD iterations and fuzz CPU-time set the real floor — a <strong>live doge-signet with the full bundle in ~3–5 weeks</strong> from kickoff is the realistic aggressive target. <em>Credibility time</em> (where AI changes nothing): "synced identically once" is a demo; "N months of lockstep mainnet operation + X CPU-years of differential fuzzing, watch it live" is an argument. That clock starts at week 4, matures in the background while the campaign runs, and gates <em>activation</em> (still community-paced, <strong>12–24+ months</strong>) — not launch.</p>
 
 <h2><span class="num">§7</span>Design Decisions We Must Make Early</h2>
 <table>
@@ -393,6 +416,16 @@
   <li><a href="https://litecoin.com/news/litecoin-mweb-security-incident-postmortem">Litecoin — MWEB incident postmortem (2026)</a></li>
   <li><a href="https://coinpaper.com/16160/dogecoin-takes-first-step-toward-quantum-resistance-with-mainnet-test">Dogecoin Foundation mainnet PQ experiment ("RE-EN")</a></li>
   <li><a href="https://nownodes.io/blog/new-update-dogecoin-core-1-14-9/">Dogecoin 1.14.9 / DogeReaper coverage</a></li>
+  <li><a href="https://github.com/advisories/GHSA-27vh-h6mc-q6g8">CVE-2024-38365 — btcd FindAndDelete chain-split bug (hidden ~9 yrs)</a></li>
+  <li><a href="https://bitcoinmagazine.com/technical/learning-from-the-lnd-bug-on-lightning">btcd/lnd Oct 2022 live mainnet stalls</a></li>
+  <li><a href="https://github.com/bitcoin/bitcoin/pull/30595">bitcoin/bitcoin PR #30595 — libbitcoinkernel C API (merged Nov 2025)</a></li>
+  <li><a href="https://github.com/TheCharlatan/kernel-node">kernel-node — Rust node embedding Core's consensus engine</a></li>
+  <li><a href="https://github.com/vinteumorg/Floresta">Floresta v0.9.0 — switched to libbitcoinkernel over own validation</a></li>
+  <li><a href="https://github.com/bitcoinfuzz/bitcoinfuzz">bitcoinfuzz — differential fuzzing, 70+ cross-implementation bugs</a></li>
+  <li><a href="https://github.com/ltcsuite/ltcd">ltcd — scrypt btcd fork, production since 2018 (no AuxPoW)</a></li>
+  <li><a href="https://www.namecoin.org/docs/dev/fork-wishlist/">Namecoin on its abandoned btcd fork (AuxPoW alt-nodes die of drift)</a></li>
+  <li><a href="https://lib.dogecoin.org/docs/what">libdogecoin — "not a runnable node facility"</a></li>
+  <li><a href="https://github.com/bitcoin/bips/blob/master/bip-0050.mediawiki">BIP50 — March 2013 BDB fork postmortem ("code is the spec")</a></li>
 </ul>
 
 <footer>
