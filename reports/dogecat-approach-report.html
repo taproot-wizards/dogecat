@@ -323,6 +323,7 @@
       <li>Kernel API is experimental/unversioned upstream (every consumer compiles from source today); expect breaking-change churn until ~v32+.</li>
       <li>Kernel covers consensus/chainstate only — mempool <em>policy</em> is reimplemented, so relay-level (not chain-level) divergence needs its own differential tests.</li>
       <li>The <em>activation proposal</em> must rest on dogecat alone; the next-gen node is ecosystem candy, never the consensus vehicle. Announce staged, build parallel.</li>
+      <li>Expect Satoshi's 2010 line — <em>"a second, compatible implementation of Bitcoin … would be a menace to the network"</em> — to be quoted at us. The prepared answer: a kernel-sharing client is not a second consensus implementation; it is the <em>same</em> implementation wearing different clothes. (Greg Maxwell's 2018 post-CVE argument against multiple implementations attacks independent reimplementation of consensus rules — which is exactly the part we don't do.)</li>
     </ul></div>
   </div>
 </div>
@@ -428,6 +429,8 @@
   <li><a href="https://www.namecoin.org/docs/dev/fork-wishlist/">Namecoin on its abandoned btcd fork (AuxPoW alt-nodes die of drift)</a></li>
   <li><a href="https://lib.dogecoin.org/docs/what">libdogecoin — "not a runnable node facility"</a></li>
   <li><a href="https://github.com/bitcoin/bips/blob/master/bip-0050.mediawiki">BIP50 — March 2013 BDB fork postmortem ("code is the spec")</a></li>
+  <li><a href="https://btctranscripts.com/greg-maxwell/2018-09-23-greg-maxwell-multiple-implementations/">Maxwell 2018 — canonical case against multiple consensus implementations</a></li>
+  <li><a href="https://satoshi.nakamotoinstitute.org/posts/bitcointalk/126/">Satoshi (June 2010) — "a second implementation would be a menace to the network"</a></li>
 </ul>
 
 <footer>
