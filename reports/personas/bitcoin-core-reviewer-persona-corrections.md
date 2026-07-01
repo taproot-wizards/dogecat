@@ -23,7 +23,9 @@ exactly five fingerprints (June 2026):
 | **sedited** (TheCharlatan) | **Added Jan 8, 2026** — kernel/libbitcoinkernel specialist. The original doc lists him as a rank-and-file ACK-giver. |
 
 **glozow (Gloria Zhao) resigned as maintainer Jan 28, 2026** (trusted-keys removal
-commit; [DL News](https://www.dlnews.com/articles/people-culture/gloria-zhao-steps-down-as-bitcoin-core-maintainer/)),
+merged Jan 28, 2026 via PR #34517; the removal commit itself was *authored* Sep 18,
+2025 — verified in-repo, commit `f2b8acc0e`;
+[DL News](https://www.dlnews.com/articles/people-culture/gloria-zhao-steps-down-as-bitcoin-core-maintainer/)),
 in the fallout of the OP_RETURN relay war and sustained harassment. Active as a
 contributor at least through Feb 2026; current engagement unconfirmed.
 

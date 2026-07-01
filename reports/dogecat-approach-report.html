@@ -110,7 +110,7 @@
   <h1>DOGE<span class="cat">CAT</span> 🐕🐈</h1>
   <div class="subtitle">Bringing <strong>BIP-347 (OP_CAT)</strong>, <strong>Taproot</strong>, and <strong>BIP-360 (P2MR)</strong> to Dogecoin:
   an evidence-based comparison of engineering approaches, with a recommendation.</div>
-  <div class="meta">Prepared for Udi · June 12, 2026 · rev 5 (adds §3.1 payload defense, conformance-suite artifact, RE-EN correction; prior revs: artifact architecture, stretch goal, timeline, personas) · Empirical data measured directly from the dogecoin/dogecoin and bitcoin/bitcoin git histories · All claims sourced (§9)</div>
+  <div class="meta">Prepared for Udi · June 12, 2026 · rev 6 (July 1, 2026 fact-check pass: MWEB incident split into its two events (Mar + Apr 2026), src/ drift figure restated excl. Qt-translation churn, v31.0 release date; see reports/VERIFICATION-2026-07-01.md · rev 5 added §3.1 payload defense, conformance-suite artifact, RE-EN correction) · Empirical data measured directly from the dogecoin/dogecoin and bitcoin/bitcoin git histories · All claims sourced (§9)</div>
 </header>
 
 <div class="verdict">
@@ -124,7 +124,7 @@
 <p>All figures below were computed directly from git history in this session — the dogecoin remote fetched into the dogecat repo, merge-bases computed against bitcoin/bitcoin.</p>
 <div class="cards">
   <div class="card"><div class="big red">Feb 2017</div><div class="lbl">Bitcoin Core ancestor of Dogecoin v1.14.9 (current release) — Core ~0.14 era, commit <code>9828f9a99</code></div></div>
-  <div class="card"><div class="big red">14,539</div><div class="lbl">Bitcoin commits Dogecoin's base is behind current Core master (~615k changed lines in src/)</div></div>
+  <div class="card"><div class="big red">14,539</div><div class="lbl">Bitcoin commits Dogecoin's base is behind current Core master (~453k changed lines in src/ excl. Qt translations; ~615k incl.)</div></div>
   <div class="card"><div class="big gold">~5.6k</div><div class="lbl">Lines (insertions, src/) of the maintainer-curated "Dogecoin essence" diff in 1.21-dev — 168 files</div></div>
   <div class="card"><div class="big gold">~1.6k</div><div class="lbl">Of those, consensus-critical lines: auxpow (374), scrypt (455), pureheader (180), subsidy/Digishield (125), chainparams (211), validation+net (~150), pow (30)</div></div>
   <div class="card"><div class="big green">+34/−6</div><div class="lbl">Lines in interpreter.cpp for BIP-347 OP_CAT (bitcoin-inquisition PR #39). The opcode itself is ~13 lines</div></div>
@@ -272,7 +272,7 @@
       <li>No chain-equivalence proof needed — it's the same node, plus features.</li>
     </ul></div>
     <div class="cons"><h4>Cons</h4><ul>
-      <li><strong>Creates exactly what killed Litecoin's MWEB:</strong> large, novel, lightly-reviewed consensus code. Taproot touches script interpretation, sighashing, libsecp256k1, p2p, wallet, mempool — backporting it across 7 majors of refactoring means hand-rewriting it into an alien codebase. The result is no longer "Bitcoin's reviewed taproot"; it's our bespoke taproot. (Litecoin's bespoke MWEB: ~85k LTC inflation exploit + 13-block reorg, March 2026.)</li>
+      <li><strong>Creates exactly what killed Litecoin's MWEB:</strong> large, novel, lightly-reviewed consensus code. Taproot touches script interpretation, sighashing, libsecp256k1, p2p, wallet, mempool — backporting it across 7 majors of refactoring means hand-rewriting it into an alien codebase. The result is no longer "Bitcoin's reviewed taproot"; it's our bespoke taproot. (Litecoin's bespoke MWEB: an 85,034-LTC fake-pegout inflation exploit in March 2026 — funds recovered for an 850-LTC bounty — then a second exploit attempt in April 2026 that caused a 13-block reorg.)</li>
       <li>The 0.14 base lacks the modern test/fuzz infrastructure to validate it with.</li>
       <li>Each backport deepens divergence from upstream forever; the rebase debt compounds.</li>
       <li>Dogecoin's own maintainers concluded even modest upgrades to this tree are a "serial stream of risky must-have, blocking patches."</li>
@@ -310,7 +310,7 @@
       <li>Conflict-by-conflict review trail.</li>
     </ul></div>
     <div class="cons"><h4>Cons</h4><ul>
-      <li>~615k lines of drift; thousands of conflicting commits; build system changed twice (autotools→CMake). The conflict-resolution stream is itself unreviewable.</li>
+      <li>~453k lines of drift in src/ (excl. translation churn); thousands of conflicting commits; build system changed twice (autotools→CMake). The conflict-resolution stream is itself unreviewable.</li>
       <li>Ends at the same destination as Approach A with 10× the labor and a messier audit trail. Strictly dominated.</li>
     </ul></div>
   </div>
@@ -333,7 +333,7 @@
       <li>No soft-fork lag: independent reimplementations chronically trail consensus changes (btcd merged taproot validation ~4 months <em>after</em> Bitcoin's activation; its segwit port took 16 months of review). A kernel-sharing client enforces new rules the moment dogecat does — critical for a chain about to do five soft forks.</li>
     </ul></div>
     <div class="cons"><h4>Caveats</h4><ul>
-      <li>Kernel API status (verified in-tree): the C API source <strong>is in the tagged v31.0 release</strong> (Apr 15, 2026), but behind an experimental, default-OFF build flag (<code>-DBUILD_KERNEL_LIB=ON</code>); the header is unversioned ("expect breaking changes") and the compiled library isn't shipped in Core's release binaries. Non-blocking for us — dogecat ships its own binaries — but expect API churn until ~v32+.</li>
+      <li>Kernel API status (verified in-tree): the C API source <strong>is in the tagged v31.0 release</strong> (April 2026; release announced Apr 19), but behind an experimental, default-OFF build flag (<code>-DBUILD_KERNEL_LIB=ON</code>); the header is unversioned ("expect breaking changes") and the compiled library isn't shipped in Core's release binaries. Non-blocking for us — dogecat ships its own binaries — but expect API churn until ~v32+.</li>
       <li>Kernel covers consensus/chainstate only — mempool <em>policy</em> is reimplemented, so relay-level (not chain-level) divergence needs its own differential tests.</li>
       <li>The <em>activation proposal</em> must rest on dogecat alone; the next-gen node is ecosystem candy, never the consensus vehicle. Announce staged, build parallel.</li>
       <li>Expect Satoshi's 2010 line — <em>"a second, compatible implementation of Bitcoin … would be a menace to the network"</em> — to be quoted at us. The prepared answer: a kernel-sharing client is not a second consensus implementation; it is the <em>same</em> implementation wearing different clothes. (Greg Maxwell's 2018 post-CVE argument against multiple implementations attacks independent reimplementation of consensus rules — which is exactly the part we don't do.)</li>

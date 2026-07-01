@@ -1,5 +1,17 @@
 # PAWDIT Project Handoff — Session Context Document
 
+> **Review addendum (July 1, 2026, branch `claude/phase-zero-one-review-8aa23n`):**
+> all artifacts in `reports/` were independently fact-checked. Every
+> bitcoin-side "measured fact" in §4 re-verified exactly; four errors were found
+> and fixed (report is now rev 6) — see `reports/VERIFICATION-2026-07-01.md`.
+> **Amendment to §4:** the reconstruction commands there DO NOT work in a
+> dogecat-only Claude Code session — the git proxy 403s every other repo
+> (pawdit, dogecoin/dogecoin, bitcoin/bitcoin, even codeload tarballs). Any
+> session that needs the analysis workspace or the pawdit project state must
+> have those repos attached (`add_repo`) from the start. Phase 0/1 work
+> products (Pedigree, patches, any newer handoff) live in
+> `taproot-wizards/pawdit` and were NOT reviewable from this session.
+
 **Written:** June 12, 2026, at the end of the founding strategy session (Claude Code
 session on taproot-wizards/dogecat, branch `claude/nifty-ptolemy-jq53zw`).
 **Audience:** the next Claude Code session(s), centered on `taproot-wizards/pawdit`,
@@ -76,7 +88,7 @@ git fetch bitcoin tag v31.0 tag v30.0 --no-tags       # release tags (fork lacks
 - dogecoin `1.21-dev` ↔ master merge-base: `831675c8dccfa6525ffe751da3cc60709c380953` (Nov 2020, Core 0.21). Curated essence diff: 168 files, +5,622/−3,484 in src/. Stalled Feb 2024. **Use as cross-check only, never as the authority (incomplete by definition).**
 - Consensus-critical essence (from 1.21-dev): auxpow.cpp/h (~374), scrypt (~455), pureheader (~180), dogecoin.cpp/h (~146+), chainparams (~211), net_processing (~92), validation (~56), pow (~30).
 - Dogecoin mainnet consensus state: BIP34/65/66 only (BIP65 height 3,464,751 — last soft fork, 2019). CSV + SegWit **disabled** in chainparams. AuxPoW from block 371,337, chain ID 0x62. "Dogecoin does not use BIP9" (their 1.21-dev comment).
-- Bitcoin Core: kernel C API (`src/kernel/bitcoinkernel.h`) **present in tagged v31.0** (Apr 15, 2026) behind experimental `-DBUILD_KERNEL_LIB=ON` (default OFF); not in v30.0. Release cadence strict 6 months; **v32.0: branch-off Sep 10, target Oct 10, 2026** (bitcoin/bitcoin issue #35122). Plan: develop vs master, release vs v31.x, rehearse re-target onto v32.0 in October.
+- Bitcoin Core: kernel C API (`src/kernel/bitcoinkernel.h`) **present in tagged v31.0** (April 2026; release announced Apr 19) behind experimental `-DBUILD_KERNEL_LIB=ON` (default OFF); not in v30.0. Release cadence strict 6 months; **v32.0: branch-off Sep 10, target Oct 10, 2026** (bitcoin/bitcoin issue #35122). Plan: develop vs master, release vs v31.x, rehearse re-target onto v32.0 in October.
 
 ## 5. Decisions log (binding unless Udi revisits)
 
